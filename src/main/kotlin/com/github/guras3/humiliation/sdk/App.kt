@@ -1,53 +1,21 @@
 package com.github.guras3.humiliation.sdk
 
+import okhttp3.OkHttpClient
+
 fun main(args: Array<String>) {
 
-//    authorizedExample()
+    val sdkFactory = SdkFactory("http://95.216.172.51:8888", OkHttpClient())
 
-    anonymousExample()
+    //anonymousExample(sdkFactory)
+    authorizedExample(sdkFactory)
 
 }
 
-//private fun authorizedExample() {
-//    val humSdk = HumSdk("http://asd")
-//
-//    try {
-//        humSdk.authorize(
+private fun anonymousExample(sdkFactory: SdkFactory) {
 
-//        )
-//    } catch (e: HumSdkAuthException) {
-//        // failed to authenticate or authorize
-//        return
-//    }
-//
-//    try {
-//        val humiliations = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
-//        println(humiliations)
-//    } catch (e: HumSdkException) {
-//        println(e.message)
-//        // business error
-//    } catch (e: HumSdkAuthException) {
-//        println(e.message)
-//        // FORCE LOGOUT USER HERE
-//    }
-//
-//    humSdk.deauthorize()
-//
-//    try {
-//        val humiliations = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
-//    } catch (e: HumSdkException) {
-//        println(e.message)
-//        // business error
-//    } catch (e: HumSdkAuthException) {
-//        println(e.message)
-//        // FORCE LOGOUT USER HERE
-//    }
-//}
+    val humSdk = sdkFactory.createAnonymous()
 
-private fun anonymousExample() {
-    val humSdk = HumSdk("http://asd")
-
-    humSdk.asAnonymous()
+    humSdk.init()
 
     val humiliations1 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
     println(humiliations1)
@@ -57,5 +25,35 @@ private fun anonymousExample() {
 
     val humiliations3 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
     println(humiliations3)
+
+    humSdk.destroy()
+
+}
+
+private fun authorizedExample(sdkFactory: SdkFactory) {
+
+    val humSdk = sdkFactory.createAuthorized(
+
+    )
+
+    humSdk.addStateChangeListener { newState ->
+        println("StateChangeListener" + newState)
+    }
+
+    humSdk.init()
+
+    val humiliations1 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
+    println(humiliations1)
+
+    val humiliations2 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
+    println(humiliations2)
+
+    val humiliations3 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
+    println(humiliations3)
+
+    //humSdk.destroy()
+
+    val humiliations4 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
+    println(humiliations4)
 
 }
