@@ -12,11 +12,11 @@ class SdkFactory(
     }
 
     fun createAuthorized(clientId: String, clientSecret: String?, grantType: String, grantTypeDetails: Map<String, String>): HumSdk {
-        val ts = DefaultTokenService(backendBaseUrl, httpClient, clientId, clientSecret, grantType, grantTypeDetails)
+        val ts = TokenManager(backendBaseUrl, httpClient, clientId, clientSecret, grantType, grantTypeDetails)
         return AuthHumSdk(backendBaseUrl, httpClient, ts)
     }
 
-    fun restore(state: Map<String, Any>): HumSdk {
+    fun restore(state: Map<String, String>): HumSdk {
         TODO()
     }
 
