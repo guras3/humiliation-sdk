@@ -6,6 +6,7 @@ import com.github.guras3.humiliation.sdk.api.HumSdkException
 import com.github.guras3.humiliation.sdk.api.auth.*
 import mu.KLogging
 import okhttp3.*
+import java.util.concurrent.atomic.AtomicReference
 
 class TokenManager(
     private val backendBaseUrl: String,
@@ -14,34 +15,53 @@ class TokenManager(
     private val clientSecret: String?,
     private val grantType: String,
     private val grantTypeDetails: Map<String, String>,
-    private var token: TokenResponse? = null
+    token: TokenResponse? = null
 ) {
 
+    private var tokenHolder = AtomicReference<TokenResponse>(token)
+
     fun getToken(): TokenResponse {
+        val token = tokenHolder.get()
         if (token != null) {
 
-            if (token!!.expired()) {
-                logger.info { "token expired, trying to refresh.." }
-                this.refreshToken()
+            if (!token.expired()) {
+                return token
             }
 
-            return token!!
+            logger.info { "token expired, trying to refresh" }
+            return doRefreshToken()
         }
 
+        logger.info { "no token, requesting new" }
+        return doGetToken()
+    }
+
+    private fun doGetToken(): TokenResponse {
         val (tokenResponse, securityErrorDescription) = getToken(grantType, grantTypeDetails)
         if (securityErrorDescription != null) throw HumSdkException(securityErrorDescription.errorDescription)
-        token = tokenResponse
-        return token!!
+        tokenResponse!!
+
+        tokenHolder.set(tokenResponse)
+        return tokenResponse
     }
 
     fun refreshToken() {
-        val (tokenResponse, securityErrorDescription) = refreshToken(token!!.refreshToken)
+        doRefreshToken()
+    }
+
+    private fun doRefreshToken(): TokenResponse {
+        val token = tokenHolder.get() ?: throw HumSdkException("no token")
+        val (tokenResponse, securityErrorDescription) = refreshToken(token.refreshToken)
         if (securityErrorDescription != null) throw HumSdkException(securityErrorDescription.errorDescription)
-        token = tokenResponse
+        tokenResponse!!
+
+        tokenHolder.set(tokenResponse)
+        return tokenResponse
     }
 
     fun revokeToken() {
-        revokeToken(token!!.refreshToken, TokenTypeHint.REFRESH_TOKEN)
+        val token = tokenHolder.get() ?: throw HumSdkException("no token")
+        revokeToken(token.refreshToken, TokenTypeHint.REFRESH_TOKEN)
     }
 
     private fun revokeToken(token: String, tokenTypeHint: TokenTypeHint) {

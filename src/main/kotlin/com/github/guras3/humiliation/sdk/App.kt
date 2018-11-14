@@ -6,7 +6,7 @@ fun main(args: Array<String>) {
 
     val sdkFactory = SdkFactory("http://95.216.172.51:8888", OkHttpClient())
 
-    //anonymousExample(sdkFactory)
+    anonymousExample(sdkFactory)
     authorizedExample(sdkFactory)
 
 }
