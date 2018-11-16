@@ -18,10 +18,6 @@ class AnonHumSdk(
 
     }
 
-    override fun addStateChangeListener(listener: SdkStateChangeListener) {
-        // AnonHumSdk state never changes
-    }
-
     override fun getHumiliations(limit: Int, allowObscene: Boolean, withEpithet: Boolean): List<Humiliation> {
         val httpUrl = HttpUrl.get("$backendBaseUrl/api/v0/humiliations").newBuilder()
             .addQueryParameter("limit", limit.toString())

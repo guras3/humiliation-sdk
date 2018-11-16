@@ -6,8 +6,6 @@ interface HumSdk {
 
     fun getHumiliations(limit: Int, allowObscene: Boolean, withEpithet: Boolean): List<Humiliation>
 
-    fun addStateChangeListener(listener: SdkStateChangeListener)
-
     fun destroy()
 
 }

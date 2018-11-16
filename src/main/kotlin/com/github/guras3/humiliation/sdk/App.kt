@@ -30,11 +30,12 @@ private fun anonymousExample(sdkFactory: SdkFactory) {
 
 private fun authorizedExample(sdkFactory: SdkFactory) {
 
-
-
-    humSdk.addStateChangeListener { newState ->
-        println("StateChangeListener" + newState)
-    }
+    val humSdk = sdkFactory.createAuthorized(
+        clientId = "clientId",
+        clientSecret = "clientSecret",
+        grantType = "grantType",
+        grantTypeDetails = mapOf("grantTypeDetails" to "grantTypeDetails")
+    )
 
     val humiliations1 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
     println(humiliations1)

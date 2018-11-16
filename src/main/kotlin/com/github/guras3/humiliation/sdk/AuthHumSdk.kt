@@ -17,14 +17,8 @@ class AuthHumSdk(
     private val tokenManager: TokenManager
 ) : HumSdk {
 
-    private val listeners = CopyOnWriteArrayList<SdkStateChangeListener>()
-
     override fun destroy() {
         tokenManager.revokeToken()
-    }
-
-    override fun addStateChangeListener(listener: SdkStateChangeListener) {
-        listeners.add(listener)
     }
 
     override fun getHumiliations(limit: Int, allowObscene: Boolean, withEpithet: Boolean): List<Humiliation> {
