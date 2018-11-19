@@ -14,6 +14,11 @@ class AnonHumSdk(
     private val httpClient: OkHttpClient
 ) : HumSdk {
 
+    override fun start() {
+        // todo: use /ping
+        getHumiliations(1, false, false)
+    }
+
     override fun destroy() {
 
     }

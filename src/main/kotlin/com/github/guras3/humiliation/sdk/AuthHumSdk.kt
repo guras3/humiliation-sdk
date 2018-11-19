@@ -17,6 +17,10 @@ class AuthHumSdk(
     private val tokenManager: TokenManager
 ) : HumSdk {
 
+    override fun start() {
+        tokenManager.getToken()
+    }
+
     override fun destroy() {
         tokenManager.revokeToken()
     }
