@@ -4,7 +4,7 @@ import okhttp3.OkHttpClient
 
 fun main(args: Array<String>) {
 
-    val sdkFactory = SdkFactory("http://95.216.172.51:8888", OkHttpClient())
+    val sdkFactory = SdkFactory("http://95.216.169.92:8888", OkHttpClient())
 
     anonymousExample(sdkFactory)
     authorizedExample(sdkFactory)
@@ -14,6 +14,8 @@ fun main(args: Array<String>) {
 private fun anonymousExample(sdkFactory: SdkFactory) {
 
     val humSdk = sdkFactory.createAnonymous()
+
+    humSdk.start()
 
     val humiliations1 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
     println(humiliations1)
@@ -37,13 +39,15 @@ private fun authorizedExample(sdkFactory: SdkFactory) {
         grantTypeDetails = mapOf("grantTypeDetails" to "grantTypeDetails")
     )
 
+    humSdk.start()
+
     val humiliations1 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
     println(humiliations1)
 
     val humiliations2 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
     println(humiliations2)
 
-    Thread.sleep(65000)
+    humSdk.destroy()
 
     //humSdk.destroy()
 
