@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.*
 import java.util.*
 
-data class TokenResponse(
+internal data class TokenResponse(
     @JsonProperty("access_token")
     val accessToken: String,
     @JsonProperty("token_type")

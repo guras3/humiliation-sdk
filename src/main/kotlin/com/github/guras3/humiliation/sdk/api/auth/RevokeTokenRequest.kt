@@ -2,7 +2,7 @@ package com.github.guras3.humiliation.sdk.api.auth
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class RevokeTokenRequest(
+internal data class RevokeTokenRequest(
     @JsonProperty("token")
     val token: String,
     @JsonProperty("token_type_hint")

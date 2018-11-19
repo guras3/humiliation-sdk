@@ -2,7 +2,7 @@ package com.github.guras3.humiliation.sdk.api.auth
 
 import com.fasterxml.jackson.annotation.JsonCreator
 
-enum class SecurityErrorCode(val code: String) {
+internal enum class SecurityErrorCode(val code: String) {
     INVALID_REQUEST("invalid_request"),
     INVALID_CLIENT("invalid_client"),
     INVALID_GRANT("invalid_grant"),

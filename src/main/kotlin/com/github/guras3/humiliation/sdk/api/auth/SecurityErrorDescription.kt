@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SecurityErrorDescription(
+internal data class SecurityErrorDescription(
     val status: String,
     val error: SecurityErrorCode?,
     @JsonProperty("error_description")

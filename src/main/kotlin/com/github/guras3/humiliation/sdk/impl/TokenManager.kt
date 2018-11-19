@@ -1,14 +1,14 @@
-package com.github.guras3.humiliation.sdk
+package com.github.guras3.humiliation.sdk.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.github.guras3.humiliation.sdk.utils.JsonUtils
 import com.github.guras3.humiliation.sdk.api.HumSdkException
 import com.github.guras3.humiliation.sdk.api.auth.*
 import mu.KLogging
 import okhttp3.*
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicReference
 
-class TokenManager(
+internal class TokenManager(
     private val backendBaseUrl: String,
     private val httpClient: OkHttpClient,
     private val clientId: String,
@@ -18,7 +18,13 @@ class TokenManager(
     token: TokenResponse? = null
 ) {
 
+    private val listeners = CopyOnWriteArrayList<(state: String?) -> Unit>()
+
     private var tokenHolder = AtomicReference<TokenResponse>(token)
+
+    fun addStateChangeListener(listener: (state: String?) -> Unit) {
+        listeners.add(listener)
+    }
 
     fun getToken(): TokenResponse {
         val token = tokenHolder.get()
@@ -42,6 +48,7 @@ class TokenManager(
         tokenResponse!!
 
         tokenHolder.set(tokenResponse)
+        listeners.forEach { it(JsonUtils.mapper.writeValueAsString(tokenResponse)) }
         return tokenResponse
     }
 
@@ -56,12 +63,15 @@ class TokenManager(
         tokenResponse!!
 
         tokenHolder.set(tokenResponse)
+        listeners.forEach { it(JsonUtils.mapper.writeValueAsString(tokenResponse)) }
         return tokenResponse
     }
 
     fun revokeToken() {
         val token = tokenHolder.get() ?: throw HumSdkException("no token")
         revokeToken(token.refreshToken, TokenTypeHint.REFRESH_TOKEN)
+        tokenHolder.set(null)
+        listeners.forEach { it(null) }
     }
 
     private fun revokeToken(token: String, tokenTypeHint: TokenTypeHint) {
@@ -78,7 +88,7 @@ class TokenManager(
             .post(
                 RequestBody.create(
                     MediaType.get("application/json; charset=utf-8"),
-                    mapper.writeValueAsBytes(revokeTokenRequest)
+                    JsonUtils.mapper.writeValueAsBytes(revokeTokenRequest)
                 )
             )
             .build()
@@ -86,7 +96,7 @@ class TokenManager(
         httpClient.newCall(request).execute().use { response ->
             val body = response.body()!!
             if (!response.isSuccessful) {
-                val errorResponse = mapper.readValue(body.bytes(), SecurityErrorDescription::class.java)
+                val errorResponse = JsonUtils.mapper.readValue(body.bytes(), SecurityErrorDescription::class.java)
                 logger.error { "failed to revoke token: $errorResponse" }
             } else {
                 logger.info { "token revoked" }
@@ -116,7 +126,7 @@ class TokenManager(
             .post(
                 RequestBody.create(
                     MediaType.get("application/json; charset=utf-8"),
-                    mapper.writeValueAsBytes(tokenRequest)
+                    JsonUtils.mapper.writeValueAsBytes(tokenRequest)
                 )
             )
             .build()
@@ -124,18 +134,16 @@ class TokenManager(
         httpClient.newCall(request).execute().use { response ->
             val body = response.body()!!
             if (!response.isSuccessful) {
-                val errorResponse = mapper.readValue(body.bytes(), SecurityErrorDescription::class.java)
+                val errorResponse = JsonUtils.mapper.readValue(body.bytes(), SecurityErrorDescription::class.java)
                 logger.error { "failed to get access token: $errorResponse" }
                 return null to errorResponse
             }
-            val tokenResponse = mapper.readValue(body.bytes(), TokenResponse::class.java)
+            val tokenResponse = JsonUtils.mapper.readValue(body.bytes(), TokenResponse::class.java)
             logger.info { "new token: $tokenResponse" }
             return tokenResponse to null
         }
     }
 
-    private companion object : KLogging() {
-        val mapper = ObjectMapper().registerKotlinModule()
-    }
+    private companion object : KLogging()
 
 }

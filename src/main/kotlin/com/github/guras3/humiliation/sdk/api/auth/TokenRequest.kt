@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class TokenRequest(
+internal data class TokenRequest(
     @JsonProperty("client_id")
     val clientId: String,
     @JsonProperty("client_secret")

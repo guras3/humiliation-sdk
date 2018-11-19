@@ -1,4 +1,4 @@
-package com.github.guras3.humiliation.sdk
+package com.github.guras3.humiliation.sdk.impl
 
 import com.github.guras3.humiliation.sdk.api.HumSdkException
 import com.github.guras3.humiliation.sdk.api.humiliation.Humiliation
@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.github.guras3.humiliation.sdk.api.HumSdk
 import mu.KLogging
 import okhttp3.*
 
-class AnonHumSdk(
+internal class AnonHumSdk(
     private val backendBaseUrl: String,
     private val httpClient: OkHttpClient
 ) : HumSdk {
@@ -20,6 +21,10 @@ class AnonHumSdk(
     }
 
     override fun destroy() {
+
+    }
+
+    override fun addStateChangeListener(listener: (state: String?) -> Unit) {
 
     }
 

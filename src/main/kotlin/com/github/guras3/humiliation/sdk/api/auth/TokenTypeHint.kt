@@ -2,7 +2,7 @@ package com.github.guras3.humiliation.sdk.api.auth
 
 import com.fasterxml.jackson.annotation.JsonCreator
 
-enum class TokenTypeHint(private val code: String) {
+internal enum class TokenTypeHint(private val code: String) {
     ACCESS_TOKEN("access_token"),
     REFRESH_TOKEN("refresh_token");
 

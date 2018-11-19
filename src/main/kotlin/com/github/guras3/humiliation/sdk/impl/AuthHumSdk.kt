@@ -1,17 +1,19 @@
-package com.github.guras3.humiliation.sdk
+package com.github.guras3.humiliation.sdk.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.github.guras3.humiliation.sdk.api.HumSdk
 import com.github.guras3.humiliation.sdk.api.HumSdkException
 import com.github.guras3.humiliation.sdk.api.humiliation.Humiliation
 import mu.KLogging
-import okhttp3.*
+import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.util.*
-import java.util.concurrent.CopyOnWriteArrayList
 
-class AuthHumSdk(
+internal class AuthHumSdk(
     private val backendBaseUrl: String,
     private val httpClient: OkHttpClient,
     private val tokenManager: TokenManager
@@ -23,6 +25,10 @@ class AuthHumSdk(
 
     override fun destroy() {
         tokenManager.revokeToken()
+    }
+
+    override fun addStateChangeListener(listener: (state: String?) -> Unit) {
+        tokenManager.addStateChangeListener(listener)
     }
 
     override fun getHumiliations(limit: Int, allowObscene: Boolean, withEpithet: Boolean): List<Humiliation> {
