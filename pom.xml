@@ -5,7 +5,7 @@
 
     <groupId>com.github.guras3</groupId>
     <artifactId>humiliation-sdk</artifactId>
-    <version>0.0.5.SNAPSHOT</version>
+    <version>0.0.5</version>
     <packaging>jar</packaging>
 
     <name>HUMILIATION :: SDK</name>
@@ -28,7 +28,6 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>${okhttp.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -74,6 +73,16 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
