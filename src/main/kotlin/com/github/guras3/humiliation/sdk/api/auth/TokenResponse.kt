@@ -14,12 +14,12 @@ internal data class TokenResponse(
     val expiresIn: Long,
     @JsonProperty("refresh_token")
     val refreshToken: String,
-    @JsonIgnore
-    val issuedAt: Long = OffsetDateTime.now().toEpochSecond()// todo UTC
+    @JsonProperty("issued_at")
+    val issuedAt: Long = LocalDateTime.now(ZoneOffset.UTC).toEpochSecond(ZoneOffset.UTC)
 ) {
 
-    fun expired(): Boolean {// todo UTC
-        return (LocalDateTime.ofInstant(Instant.ofEpochSecond(issuedAt), ZoneId.systemDefault()) + Duration.ofSeconds(expiresIn)) < LocalDateTime.now()
+    fun expired(): Boolean {
+        return (LocalDateTime.ofInstant(Instant.ofEpochSecond(issuedAt), ZoneOffset.UTC) + Duration.ofSeconds(expiresIn)) < LocalDateTime.now(ZoneOffset.UTC)
     }
 
 }

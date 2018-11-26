@@ -1,8 +1,8 @@
 package com.github.guras3.humiliation.sdk.impl
 
-import com.github.guras3.humiliation.sdk.utils.JsonUtils
 import com.github.guras3.humiliation.sdk.api.HumSdkException
 import com.github.guras3.humiliation.sdk.api.auth.*
+import com.github.guras3.humiliation.sdk.utils.JsonUtils
 import mu.KLogging
 import okhttp3.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -70,7 +70,7 @@ internal class TokenManager(
     fun revokeToken() {
         val token = tokenHolder.get() ?: throw HumSdkException("no token")
         revokeToken(token.refreshToken, TokenTypeHint.REFRESH_TOKEN)
-        tokenHolder.set(null)
+        //tokenHolder.set(null)
         listeners.forEach { it(null) }
     }
 
@@ -102,6 +102,7 @@ internal class TokenManager(
                 logger.info { "token revoked" }
             }
         }
+
     }
 
     private fun refreshToken(refreshToken: String): Pair<TokenResponse?, SecurityErrorDescription?> {

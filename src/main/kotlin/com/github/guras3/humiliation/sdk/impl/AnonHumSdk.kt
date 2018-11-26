@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.type.CollectionLikeType
 import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.guras3.humiliation.sdk.api.HumSdk
+import com.github.guras3.humiliation.sdk.api.humiliation.Bastard
+import com.github.guras3.humiliation.sdk.utils.JsonUtils
 import mu.KLogging
 import okhttp3.*
 
@@ -45,16 +47,31 @@ internal class AnonHumSdk(
                 throw HumSdkException(rawError)
             }
 
-            return mapper.readValue(
+            return JsonUtils.mapper.readValue(
                 body.bytes(),
-                arrayListOfHumiliationsType
+                JsonUtils.arrayListOfHumiliationsType
             ) as List<Humiliation>
         }
     }
 
-    private companion object : KLogging() {
-        val mapper = ObjectMapper().registerKotlinModule()
-        val arrayListOfHumiliationsType: CollectionLikeType =
-            TypeFactory.defaultInstance().constructCollectionLikeType(ArrayList::class.java, Humiliation::class.java)
+    override fun getBastardPhrase(allowObscene: Boolean): Bastard {
+        val httpUrl = HttpUrl.get("$backendBaseUrl/bastard").newBuilder()
+            .addQueryParameter("allowObscene", allowObscene.toString())
+            .build()
+
+        val request = Request.Builder().url(httpUrl).build()
+
+        httpClient.newCall(request).execute().use { response ->
+            val body = response.body()!!
+            if (!response.isSuccessful) {
+                val rawError = body.string()
+                logger.warn { "failed to get humiliations: $rawError" }
+                throw HumSdkException(rawError)
+            }
+
+            return JsonUtils.mapper.readValue(body.bytes(), Bastard::class.java)
+        }
     }
+
+    private companion object: KLogging()
 }

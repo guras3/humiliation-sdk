@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.guras3.humiliation.sdk.api.HumSdk
 import com.github.guras3.humiliation.sdk.api.HumSdkException
+import com.github.guras3.humiliation.sdk.api.humiliation.Bastard
 import com.github.guras3.humiliation.sdk.api.humiliation.Humiliation
+import com.github.guras3.humiliation.sdk.utils.JsonUtils
 import mu.KLogging
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
@@ -60,16 +62,45 @@ internal class AuthHumSdk(
                 }
             }
 
-            return mapper.readValue(
+            return JsonUtils.mapper.readValue(
                 body.bytes(),
-                arrayListOfHumiliationsType
+                JsonUtils.arrayListOfHumiliationsType
             ) as List<Humiliation>
         }
     }
 
-    private companion object : KLogging() {
-        val mapper = ObjectMapper().registerKotlinModule()
-        val arrayListOfHumiliationsType: CollectionLikeType =
-            TypeFactory.defaultInstance().constructCollectionLikeType(ArrayList::class.java, Humiliation::class.java)
+    override fun getBastardPhrase(allowObscene: Boolean): Bastard {
+        val httpUrl = HttpUrl.get("$backendBaseUrl/api/v0/bastard").newBuilder()
+            .addQueryParameter("allowObscene", allowObscene.toString())
+            .build()
+
+        val token = tokenManager.getToken()
+
+        val request = Request.Builder()
+            .url(httpUrl)
+            .header("Authorization", "${token.tokenType.capitalize()} ${token.accessToken}")
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            val body = response.body()!!
+            if (!response.isSuccessful) {
+                val rawError = body.string()
+                logger.warn { "failed to get bastard phrase: $rawError" }
+                if (response.code() == 401) {
+                    logger.info { "token probably expired, trying to refresh.." }
+                    tokenManager.refreshToken()
+                    return getBastardPhrase(allowObscene)
+                } else {
+                    throw HumSdkException(rawError)
+                }
+            }
+
+            return JsonUtils.mapper.readValue(
+                body.bytes(),
+                Bastard::class.java
+            )
+        }
     }
+
+    private companion object : KLogging()
 }

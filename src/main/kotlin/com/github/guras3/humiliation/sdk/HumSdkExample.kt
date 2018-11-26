@@ -10,6 +10,7 @@ fun main(args: Array<String>) {
     authorizedExample(sdkFactory)
     stateChangeListenerExample(sdkFactory)
     saveAndRestoreStateExample(sdkFactory)
+    bastardExample(sdkFactory)
 
 }
 
@@ -27,6 +28,22 @@ private fun anonymousExample(sdkFactory: SdkFactory) {
 
     val humiliations3 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
     println(humiliations3)
+
+    humSdk.destroy()
+
+}
+
+private fun bastardExample(sdkFactory: SdkFactory) {
+
+    val humSdk = sdkFactory.createAnonymous()
+
+    humSdk.start()
+
+    val humiliations1 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
+    println(humiliations1)
+
+    val bastard = humSdk.getBastardPhrase(true)
+    println(bastard)
 
     humSdk.destroy()
 
