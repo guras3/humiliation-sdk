@@ -8,14 +8,29 @@ import com.fasterxml.jackson.databind.type.TypeFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.guras3.humiliation.sdk.api.HumSdk
 import com.github.guras3.humiliation.sdk.api.humiliation.Bastard
+import com.github.guras3.humiliation.sdk.api.humiliation.FavouriteHumiliationAddRequest
+import com.github.guras3.humiliation.sdk.api.humiliation.FavouriteHumiliationRemoveRequest
 import com.github.guras3.humiliation.sdk.utils.JsonUtils
 import mu.KLogging
 import okhttp3.*
+import javax.naming.OperationNotSupportedException
 
 internal class AnonHumSdk(
     private val backendBaseUrl: String,
     private val httpClient: OkHttpClient
 ) : HumSdk {
+
+    override fun addFavourites(humiliations: List<FavouriteHumiliationAddRequest>) {
+        throw OperationNotSupportedException("unauthorized")
+    }
+
+    override fun deleteFavourites(humiliations: List<FavouriteHumiliationRemoveRequest>) {
+        throw OperationNotSupportedException("unauthorized")
+    }
+
+    override fun getFavourites(): List<Humiliation> {
+        throw OperationNotSupportedException("unauthorized")
+    }
 
     override fun start() {
         // todo: use /ping

@@ -1,5 +1,7 @@
 package com.github.guras3.humiliation.sdk
 
+import com.github.guras3.humiliation.sdk.api.humiliation.FavouriteHumiliationAddRequest
+import com.github.guras3.humiliation.sdk.api.humiliation.FavouriteHumiliationRemoveRequest
 import okhttp3.OkHttpClient
 
 fun main(args: Array<String>) {
@@ -8,6 +10,7 @@ fun main(args: Array<String>) {
 
     anonymousExample(sdkFactory)
     authorizedExample(sdkFactory)
+    favouritesExample(sdkFactory)
     stateChangeListenerExample(sdkFactory)
     saveAndRestoreStateExample(sdkFactory)
     bastardExample(sdkFactory)
@@ -70,6 +73,38 @@ private fun authorizedExample(sdkFactory: SdkFactory) {
 
     val humiliations3 = humSdk.getHumiliations(limit = 1, allowObscene = true, withEpithet = true)
     println(humiliations3)
+
+}
+
+private fun favouritesExample(sdkFactory: SdkFactory) {
+
+    val humSdk = sdkFactory.createAuthorized(
+        clientId = "clientId",
+        clientSecret = "clientSecret",
+        grantType = "grantType",
+        grantTypeDetails = mapOf("grantTypeDetails" to "grantTypeDetails")
+    )
+
+    humSdk.start()
+
+    val humiliations1 = humSdk.getHumiliations(limit = 2, allowObscene = true, withEpithet = true)
+    println(humiliations1)
+
+    val listToAdd = humiliations1.map {
+        FavouriteHumiliationAddRequest(it.value)
+    }
+
+    humSdk.addFavourites(listToAdd)
+
+    println(humSdk.getFavourites())
+
+    val listToRemove = humiliations1.map {
+        FavouriteHumiliationRemoveRequest(it.id)
+    }
+
+    humSdk.deleteFavourites(listToRemove)
+
+    println(humSdk.getFavourites())
 
 }
 

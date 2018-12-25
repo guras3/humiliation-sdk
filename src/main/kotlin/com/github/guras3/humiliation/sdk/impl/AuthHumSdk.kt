@@ -7,12 +7,12 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.guras3.humiliation.sdk.api.HumSdk
 import com.github.guras3.humiliation.sdk.api.HumSdkException
 import com.github.guras3.humiliation.sdk.api.humiliation.Bastard
+import com.github.guras3.humiliation.sdk.api.humiliation.FavouriteHumiliationAddRequest
+import com.github.guras3.humiliation.sdk.api.humiliation.FavouriteHumiliationRemoveRequest
 import com.github.guras3.humiliation.sdk.api.humiliation.Humiliation
 import com.github.guras3.humiliation.sdk.utils.JsonUtils
 import mu.KLogging
-import okhttp3.HttpUrl
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
 import java.util.*
 
 internal class AuthHumSdk(
@@ -57,6 +57,96 @@ internal class AuthHumSdk(
                     logger.info { "token probably expired, trying to refresh.." }
                     tokenManager.refreshToken()
                     return getHumiliations(limit, allowObscene, withEpithet)
+                } else {
+                    throw HumSdkException(rawError)
+                }
+            }
+
+            return JsonUtils.mapper.readValue(
+                body.bytes(),
+                JsonUtils.arrayListOfHumiliationsType
+            ) as List<Humiliation>
+        }
+    }
+
+    override fun addFavourites(humiliations: List<FavouriteHumiliationAddRequest>) {
+
+        val httpUrl = HttpUrl.get("$backendBaseUrl/api/v0/humiliations/favourites/add").newBuilder().build()
+
+        val token = tokenManager.getToken()
+
+        val request = Request.Builder()
+            .url(httpUrl)
+            .post(RequestBody.create(MediaType.get("application/json; charset=utf-8"), JsonUtils.mapper.writeValueAsBytes(humiliations)))
+            .header("Authorization", "${token.tokenType.capitalize()} ${token.accessToken}")
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            val body = response.body()!!
+            if (!response.isSuccessful) {
+                val rawError = body.string()
+                logger.warn { "failed to get humiliations: $rawError" }
+                if (response.code() == 401) {
+                    logger.info { "token probably expired, trying to refresh.." }
+                    tokenManager.refreshToken()
+                    addFavourites(humiliations)
+                } else {
+                    throw HumSdkException(rawError)
+                }
+            }
+        }
+
+    }
+
+    override fun deleteFavourites(humiliations: List<FavouriteHumiliationRemoveRequest>) {
+
+        val httpUrl = HttpUrl.get("$backendBaseUrl/api/v0/humiliations/favourites/delete").newBuilder().build()
+
+        val token = tokenManager.getToken()
+
+        val request = Request.Builder()
+            .url(httpUrl)
+            .post(RequestBody.create(MediaType.get("application/json; charset=utf-8"), JsonUtils.mapper.writeValueAsBytes(humiliations)))
+            .header("Authorization", "${token.tokenType.capitalize()} ${token.accessToken}")
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            val body = response.body()!!
+            if (!response.isSuccessful) {
+                val rawError = body.string()
+                logger.warn { "failed to get humiliations: $rawError" }
+                if (response.code() == 401) {
+                    logger.info { "token probably expired, trying to refresh.." }
+                    tokenManager.refreshToken()
+                    deleteFavourites(humiliations)
+                } else {
+                    throw HumSdkException(rawError)
+                }
+            }
+        }
+
+    }
+
+    override fun getFavourites(): List<Humiliation> {
+
+        val httpUrl = HttpUrl.get("$backendBaseUrl/api/v0/humiliations/favourites").newBuilder().build()
+
+        val token = tokenManager.getToken()
+
+        val request = Request.Builder()
+            .url(httpUrl)
+            .header("Authorization", "${token.tokenType.capitalize()} ${token.accessToken}")
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            val body = response.body()!!
+            if (!response.isSuccessful) {
+                val rawError = body.string()
+                logger.warn { "failed to get humiliations: $rawError" }
+                if (response.code() == 401) {
+                    logger.info { "token probably expired, trying to refresh.." }
+                    tokenManager.refreshToken()
+                    return getFavourites()
                 } else {
                     throw HumSdkException(rawError)
                 }
